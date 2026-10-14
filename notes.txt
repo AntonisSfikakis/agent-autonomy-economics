@@ -1,0 +1,185 @@
+ta kosth boroume na ta diaxorisoym ese dio katigories :
+
+aftes pou menoun stathera gia ola ta epipeda kai se afta pou allazoun ana level
+
+simfownhsame pws o tomes pou mas apasxolei einai software develpment 
+
+
+stathera kostoi :
+
+-> w_c (ωριαίο κόστος εργασίας στη χώρα c)
+   Πηγή: Eurostat, Structural Business Statistics
+   Link: https://ec.europa.eu/eurostat/databrowser/bookmark/fff8c68e-0ab3-457e-9048-b64e9391ea9c?lang=en&createdAt=2026-10-12T15:27:26Z
+   Σε αρχικό στάδιο για Ελλάδα και Γερμανία.
+
+   Filters:
+     Dataset:   sbs_ovw_act (Enterprises by detailed NACE Rev. 2 activity)
+     Indicator: EXPN_SAL_BEN_HW_EUR (Employee benefits expense per hour worked, €)
+     NACE:      J62 (Computer programming, consultancy and related activities)
+     Geo:       EL (Ελλάδα), DE (Γερμανία)
+     Time:      2023
+
+   Τιμές:
+     Ελλάδα:    21,10 €/ώρα
+     Γερμανία:  56.23 €/ώρα
+
+   Σημείωση: περιλαμβάνει μισθούς και εισφορές εργοδότη, δηλαδή το πλήρες
+   κόστος εργασίας για την επιχείρηση.
+
+----------------------------------------------------------------------------
+
+
+-> p (πιθανότητα επιτυχίας του agent)
+
+   Πηγές:
+     [1] Scale AI, "SWE-Bench Pro: Can AI Agents Solve Long-Horizon
+         Software Engineering Tasks?", arXiv:2509.16941 (2025)
+         https://arxiv.org/pdf/2509.16941
+     [2] Scale AI, "SWE-Bench Pro: Raising the Bar for Agentic Coding"
+         (blog, Σεπτ. 2025)
+         https://scale.com/blog/swe-bench-pro
+     [3] SWE-Bench Pro V2 leaderboard, public set (Scale Labs, Σεπτ. 2026)
+         https://labs.scale.com/leaderboard/swe_bench_pro_public_v2?tab=full
+     [4] SWE-Bench Pro leaderboard, private dataset (Scale Labs)
+         https://labs.scale.com/leaderboard/swe_bench_pro
+
+Εύρος σεναρίων:
+     Αισιόδοξο:    ~98%   καλύτερο μοντέλο, V2 public [3]
+     Μεσαίο:       ~91%   μέσος όρος top-5 μοντέλων, V2 public [3]
+     Απαισιόδοξο:  ~71%   υπόθεση: 0,78 × 91%, όπου 0,78 = αναλογία
+                          private/public του Claude Opus 4.1 στο [1]
+                          (17,8% / 22,7%)
+
+   Παρατηρήσεις:
+     - Στον ιδιωτικό κώδικα το p είναι χαμηλότερο απ' ό,τι στον δημόσιο:
+       Opus 4.1 22,7% → 17,8%, GPT-5 23,1% → 14,9% [1][2]
+     - Τα δημόσια benchmarks υπερεκτιμούν: frontier μοντέλα >70% στο
+       SWE-bench Verified αλλά ~23% στο SWE-Bench Pro (2025) [2]
+     - Η επιτυχία πέφτει όσο μεγαλώνει η εργασία (γραμμές/αρχεία),
+       [1] Figure 3 → στηρίζει το p = q^n
+     - Μέση εργασία: 107,4 γραμμές σε 4,1 αρχεία [2]
+     - Το p αλλάζει γρήγορα: public set 43,6% (2025, [1] Table 1)
+       → ~98% (2026, [3]) → το μοντέλο πρέπει να είναι παραμετρικό
+  
+   Περιορισμοί:
+     - Τα σκορ είναι κυρίως δηλώσεις των εταιρειών
+     - Το απαισιόδοξο σενάριο είναι υπόθεση (V1 αναλογία σε V2 νούμερα)
+----------------------------------------------------------------------------
+ -> T_h (χρόνος που χρειάζεται ο developer μόνος του)
+   Πηγή: OpenAI, "Introducing SWE-bench Verified" (2024)
+   
+   Link: https://openai.com/index/introducing-swe-bench-verified  
+
+   Εκτίμηση χρόνου από επαγγελματίες developers για 500 εργασίες:
+     <15 λεπτά:        ~39%   → T_h ≈ 7,5 λεπτά
+     15 λεπτά–1 ώρα:   ~52%   → T_h ≈ 37,5 λεπτά
+     1–4 ώρες:         ~8%    → T_h ≈ 2,5 ώρες
+     >4 ώρες:          ~1%    → T_h ≈ 5 ώρες (υπόθεση)
+   Σταθμισμένος μέσος όρος: ≈ 37 λεπτά
+
+----------------------------------------------------------------------------
+-> T_fix (χρόνος διόρθωσης λάθους του agent από τον developer)
+   Ορισμός: T_fix = k × T_h
+   Πηγές:
+     [1] Becker et al. (METR), "Measuring the Impact of Early-2025 AI on
+         Experienced Open-Source Developer Productivity", arXiv:2507.09089
+         https://arxiv.org/pdf/2507.09089
+         → Figure 21: "AI code cleaning" ~3% του χρόνου, ενώ οι developers
+           συνεχίζουν να γράφουν οι ίδιοι σημαντικό μέρος του κώδικα (~18%)
+     [2] Gao et al., "A Survey of Bugs in AI-Generated Code",
+         arXiv:2512.05239 → είδη λαθών του AI
+   Εύρος: k = 0,3 (μικρή διόρθωση) έως 1,0 (ξαναγράψιμο από την αρχή)
+
+--------------------------------------------------------------------------
+-> C_err (κόστος λάθους που περνά απαρατήρητο στην παραγωγή)
+   Ορισμός: C_err = m × (w_c × T_h)
+   όπου m = πόσες φορές το κόστος της εργασίας κοστίζει ένα λάθος που
+   πέρασε στην παραγωγή (διόρθωση αργότερα + αποκατάσταση)
+
+   Πηγές:
+     [1] Boehm & Basili, "Software Defect Reduction Top 10 List",
+         IEEE Computer, 2001 
+         https://books.google.gr/books?hl=el&lr=&id=ski1Ms57pScC&oi=fnd&pg=PA426&dq=+++++%5B1%5D+Boehm+%26+Basili,+%22Software+Defect+Reduction+Top+10+List%22,&ots=KzvgLaen30&sig=fYMq3HT-Hi9YohniS-NVYe3TpnQ&redir_esc=y#v=onepage&q&f=false
+         → λάθος μετά την παράδοση ~100× ακριβότερο απ' ό,τι στις
+           απαιτήσεις/σχεδιασμό· για μικρά, μη κρίσιμα συστήματα ~5×
+     [2] Menzies et al., "Are delayed issues harder to resolve? Revisiting
+         cost-to-fix of defects throughout the lifecycle",
+         Empirical Software Engineering, 2017
+         https://link.springer.com/article/10.1007/s10664-016-9469-x
+         → 171 projects (2006–2014): καμία ένδειξη ότι τα λάθη που
+           διορθώνονται αργότερα κοστίζουν σταθερά περισσότερο· το
+           φαινόμενο ίσως ισχύει μόνο σε πολύ μεγάλα συστήματα
+     [3] Google DORA, "Accelerate State of DevOps Report 2024"
+         https://dora.dev/research/2024/dora-report/
+         → +25% χρήση AI ≈ −7,2% σταθερότητα παραδόσεων
+         → Failed deployment recovery time: Elite <1 ώρα,
+           High/Medium <1 ημέρα, Low 1 εβδομάδα–1 μήνας
+
+   Υπολογισμός m από [3]:
+     m = χρόνος αποκατάστασης / T_h (T_h ≈ 37 λεπτά ≈ 0,62 ώρες),
+     με υπόθεση 1 developer στην αποκατάσταση
+       Elite:        ~1 ώρα      → m ≈ 2
+       High/Medium:  ~8 ώρες     → m ≈ 13
+       Low:          ~40–160 ώρες → m ≈ 65–260
+
+   Σενάρια:
+     m = 2    χαμηλό  (Elite [3], συμφωνεί με [2])
+     m = 13   βασικό  (High/Medium [3], κοντά στο 5× του [1])
+     m = 100  υψηλό   (Low [3], συμφωνεί με το 100× του [1])
+
+   Παρατηρήσεις:
+     - Τρεις ανεξάρτητες πηγές δίνουν συνεπές εύρος (m ≈ 2–100)
+     - Το [3] δείχνει ότι η χρήση AI συνδέεται με περισσότερες
+       αποτυχίες στην παραγωγή → το C_err είναι σχετικό με τους agents
+     - Η βιβλιογραφία διαφωνεί ([1] vs [2]) → το m εξετάζεται στην
+       ανάλυση ευαισθησίας
+
+   Περιορισμοί:
+     - Το m είναι κατώτερο όριο: υποθέτει 1 developer και δεν
+       περιλαμβάνει ζημιά σε πελάτες, downtime ή κενά ασφαλείας
+     - Το [2] μετρά μόνο το κόστος διόρθωσης μέσα στην ομάδα
+     - Το [1] συγκρίνει με λάθη στη φάση σχεδιασμού, όχι στο code
+       review, και είναι από την εποχή του waterfall
+     - Το [3] δίνει εύρη χρόνου, όχι ακριβείς τιμές
+
+-------------------------------------------------------------------------------------------
+-> e_h (πιθανότητα λάθος του ανθρώπου να φτάσει στην παραγωγή)
+   Ορισμός: μπαίνει στο κόστος του σεναρίου "μόνο άνθρωπος":
+   C_H = w_c × T_h + e_h × C_err
+
+   Πηγή:
+     [1] Google DORA, "Accelerate State of DevOps Report 2024"
+         https://dora.dev/research/2024/dora-report/
+         → Change failure rate (ποσοστό αλλαγών που προκαλούν πρόβλημα
+           στην παραγωγή): Elite 5%, High 20%, Medium 10%, Low 40%
+
+   Υπόθεση:
+     Η εργασία γίνεται από έναν developer, που δουλεύει σε ομάδα με
+     επίπεδο ωριμότητας Elite / Medium / Low κατά DORA. Το επίπεδο
+     της ομάδας καθορίζει το e_h και το m του C_err.
+
+   Σενάρια (συνδυασμένα με το C_err):
+     Elite:   e_h = 5%,  m = 2
+     Medium:  e_h = 10%, m = 13   (βασικό: η μεγαλύτερη κατηγορία,
+                                   35% των ομάδων)
+     Low:     e_h = 40%, m = 100
+
+   Παρατηρήσεις:
+     - Ίδια πηγή με το C_err → συνεπή σενάρια ανά επίπεδο ομάδας
+     - Το change failure rate περιλαμβάνει ήδη τον κανονικό έλεγχο της
+       ομάδας, δηλαδή μετρά λάθη που πέρασαν στην παραγωγή
+     - Χωρίς το e_h η σύγκριση θα θεωρούσε τον άνθρωπο αλάνθαστο,
+       κάτι που θα ευνοούσε άδικα το σενάριο "μόνο άνθρωπος"
+
+   Περιορισμοί:
+     - Μετρά ομάδες, όχι άτομα· εφαρμόζεται ανά εργασία ενός developer
+     - Οι ομάδες το 2024 χρησιμοποιούν ήδη εν μέρει AI, άρα δεν είναι
+       "καθαρά" ανθρώπινο ποσοστό
+     - Μετρά αποτυχίες ανά αλλαγή/deployment, όχι ανά εργασία
+     - Στο DORA 2024 το High (20%) έχει υψηλότερο ποσοστό από το
+       Medium (10%)
+     - Το βασικό σενάριο αφορά developer υπάλληλο σε εταιρεία· ο
+       freelancer είναι πιθανή επέκταση (future work)
+
+  metavlita ana level :
+
