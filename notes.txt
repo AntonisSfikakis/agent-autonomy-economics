@@ -181,5 +181,140 @@ stathera kostoi :
      - Το βασικό σενάριο αφορά developer υπάλληλο σε εταιρεία· ο
        freelancer είναι πιθανή επέκταση (future work)
 
-  metavlita ana level :
+Επίπεδα αυτονομίας
 
+Για τη διαβάθμιση της αυτονομίας του agent υιοθετείται η ταξινόμηση των
+Feng, McDonald & Zhang (2025), "Levels of Autonomy for AI Agents"
+(arXiv:2506.12469, https://arxiv.org/abs/2506.12469). Η ταξινόμηση ορίζει
+πέντε επίπεδα με βάση τον ρόλο του ανθρώπου απέναντι στον agent, και όχι με
+βάση τις τεχνικές δυνατότητες του agent. Όσο ανεβαίνει το επίπεδο, ο agent
+αναλαμβάνει μεγαλύτερο μέρος της εργασίας και ο άνθρωπος περνά από την
+εκτέλεση στην επίβλεψη. Σε αυτά προστίθεται ένα επίπεδο αναφοράς (L0), όπου
+την εργασία την κάνει μόνος του ο άνθρωπος.
+
+  L0  Χωρίς agent: ο developer κάνει όλη την εργασία (baseline)
+  L1  Operator: ο άνθρωπος δίνει εντολές, ο agent εκτελεί υπο-βήματα
+  L2  Collaborator: άνθρωπος και agent δουλεύουν μαζί πάνω στην εργασία
+  L3  Consultant: ο agent οδηγεί και ζητά την άποψη του ανθρώπου
+  L4  Approver: ο agent κάνει όλη την εργασία, ο άνθρωπος εγκρίνει το
+      αποτέλεσμα
+  L5  Observer: ο agent λειτουργεί αυτόνομα, ο άνθρωπος απλώς παρακολουθεί
+      και μπορεί να παρέμβει
+
+Η ταξινόμηση είναι ποιοτική και δεν δίνει αριθμητικές τιμές. Χρησιμοποιείται
+για να οριστεί η σειρά των επιπέδων και τα άκρα των μεταβλητών (π.χ. ότι στα
+L4–L5 ο agent εκτελεί όλη την εργασία). Οι αριθμητικές τιμές των μεταβλητών
+ανά επίπεδο στηρίζονται σε εμπειρικές μελέτες, όπως περιγράφεται παρακάτω.
+
+
+-> s (ποσοστό του T_h που κάνει ο agent αντί για τον άνθρωπο)
+
+   Πηγές:
+     [1] Feng, McDonald & Zhang, "Levels of Autonomy for AI Agents",
+         arXiv:2506.12469 (2025) https://arxiv.org/abs/2506.12469
+         → ορισμός επιπέδων και άκρων του s
+     [2] Cui, Demirer, Jaffe, Musolff, Peng & Salz, "The Effects of
+         Generative AI on High-Skilled Work: Evidence from Three Field
+         Experiments with Software Developers" (Microsoft Research, 2025)
+         https://www.microsoft.com/en-us/research/publication/the-effects-of-generative-ai-on-high-skilled-work-evidence-from-three-field-experiments-with-software-developers/
+         → 4.867 developers σε Microsoft, Accenture, Fortune 100:
+           +26,08% ολοκληρωμένες εργασίες με AI coding assistant
+     [3] Peng, Kalliamvakou, Cihon & Demirer, "The Impact of AI on
+         Developer Productivity: Evidence from GitHub Copilot",
+         arXiv:2302.06590 (2023) https://arxiv.org/abs/2302.06590
+         → ελεγχόμενο πείραμα: 55,8% ταχύτερα (~161 → ~71 λεπτά)
+     [4] Becker et al. (METR), arXiv:2507.09089 (2025)
+         https://arxiv.org/pdf/2507.09089
+         → Cursor με chat: έμπειροι developers 19% πιο αργοί
+     [5] Takerngsaksiri et al., "Human-In-the-Loop Software Development
+         Agents" (HULA), ICSE SEIP 2025, arXiv:2411.12924
+         https://arxiv.org/abs/2411.12924
+         → agent σε χρήση στο Atlassian JIRA: παράγει πλάνο και κώδικα,
+           ο engineer καθοδηγεί και εγκρίνει· μειώνει χρόνο και κόπο
+           κυρίως σε απλές εργασίες
+     [6] Li, Zhang & Hassan, "The Rise of AI Teammates in Software
+         Engineering (SE) 3.0", arXiv:2507.15003 (2025)
+         https://arxiv.org/abs/2507.15003
+         → 456.535 PRs από agents (Codex, Devin, Copilot, Cursor,
+           Claude Code)· 58,2% χωρίς ρητό review (έναντι 75,3% των
+           ανθρώπινων PRs)
+
+   Τιμές:
+     L0: s = 0              εξ ορισμού
+     L1: s ≈ 0,21           [2] (1 − 1/1,26)· άνω όριο 0,56 [3]
+     L2: s ≈ 0,2            υπόθεση· εύρος −0,19 [4] έως 0,56 [3]
+     L3: s ≈ 0,7            υπόθεση, στηρίζεται ποιοτικά στο [5]
+     L4: s = 1              [1] Approver· στην πράξη [6]
+     L5: s = 1              [1] Observer· στην πράξη [6] (PRs χωρίς review)
+
+   Παρατηρήσεις:
+     - Η αντιστοίχιση των μελετών σε επίπεδα του [1] είναι δική μας, με
+       βάση το εργαλείο: αυτόματη συμπλήρωση → L1 [2][3], chat → L2 [4],
+       agent με έγκριση πλάνου → L3 [5], αυτόνομοι agents που ανοίγουν
+       PR → L4–L5 [6]
+     - Αρνητικό s σημαίνει ότι η χρήση AI αυξάνει τον χρόνο εργασίας
+     - Οι developers δεν εκτιμούν σωστά την επίδραση του AI ([3]: +35%
+       εκτίμηση έναντι +55,8% μέτρησης· [4]: νόμιζαν ότι ήταν ταχύτεροι)
+       → στηριζόμαστε σε μετρήσεις
+     - Το [2] δείχνει μεγαλύτερο όφελος για λιγότερο έμπειρους developers
+     - Στα L4–L5 η διαφορά μεταξύ τους φαίνεται στο T_rev και στο d
+
+   Περιορισμοί:
+     - Το L3 δεν έχει ποσοτική μέτρηση του s· η τιμή 0,7 είναι υπόθεση
+     - Το s εξαρτάται έντονα από την εργασία και τον developer
+       ([3] απλή εργασία, [4] μεγάλα γνωστά projects)
+     - Οι τιμές L1–L3 εξετάζονται στην ανάλυση ευαισθησίας
+
+-> T_rev (χρόνος ελέγχου της δουλειάς του agent από τον άνθρωπο)
+
+   Πηγές:
+     [1] Kemerer & Paulk, "The Impact of Design and Code Reviews on
+         Software Quality: An Empirical Study Based on PSP Data",
+         IEEE Transactions on Software Engineering, 2009
+         https://sites.pitt.edu/~ckemerer/PSP_Data.pdf
+         → ανώτατη ταχύτητα για αποτελεσματικό review: 200 γραμμές/ώρα
+           (617 μετρήσεις, 243 developers)
+     [2] Becker et al. (METR), "Measuring the Impact of Early-2025 AI on
+         Experienced Open-Source Developer Productivity", arXiv:2507.09089
+         https://arxiv.org/pdf/2507.09089
+         → Figure 6: ~9% του χρόνου σε "Reviewing AI output"
+         → Figure 21: ~4,5% σε "Reading generation"
+     [3] Scale AI, "SWE-Bench Pro", arXiv:2509.16941
+         https://arxiv.org/pdf/2509.16941
+         → μέση εργασία: 107,4 γραμμές σε 4,1 αρχεία
+     [4] Li, Zhang & Hassan (AIDev), "The Rise of AI Teammates in
+         Software Engineering (SE) 3.0", arXiv:2507.15003
+         https://arxiv.org/abs/2507.15003
+         → 58,2% των PRs από agents χωρίς ρητό review
+
+   Υπόθεση:
+     Το όριο των 200 γραμμών/ώρα προέρχεται από το [1]. Υποθέτουμε ότι
+     ισχύει και για τον έλεγχο κώδικα που παράγεται από agent.
+
+   Υπολογισμός για πλήρες review (L4):
+     T_rev = γραμμές κώδικα / 200 γραμμές ανά ώρα  [1]
+     π.χ. εργασία SWE-Bench Pro: 107 / 200 ≈ 0,54 ώρες ≈ 32 λεπτά  [3]
+
+   Τιμές (ως ποσοστό του T_h):
+     L0: T_rev = 0             ο αυτοέλεγχος περιλαμβάνεται στο T_h
+     L1: T_rev ≈ 0,05 × T_h    έλεγχος μικρών προτάσεων [2] Fig. 21
+     L2: T_rev ≈ 0,09 × T_h    έλεγχος αποτελέσματος AI [2] Fig. 6
+     L3: T_rev ≈ 0,35 × T_h    υπόθεση: έλεγχος πλάνου + έλεγχος του
+                               κώδικα που έγραψε ο agent (70%)
+     L4: T_rev ≈ 0,5 × T_h     πλήρες review με 200 γραμμές/ώρα [1][3]
+     L5: T_rev ≈ 0,05 × T_h    δειγματοληπτικός έλεγχος: ο άνθρωπος
+                               ελέγχει 1 στις 10 εργασίες 
+   Παρατηρήσεις:
+     - Ο χρόνος ελέγχου εξαρτάται από το μέγεθος της αλλαγής → στο L4 ο
+       άνθρωπος ελέγχει όλο τον κώδικα, άρα ο έλεγχος είναι μέγιστος
+     - Γρηγορότερο review πιάνει λιγότερα λάθη [1] → σύνδεση με το d
+     - Στην πράξη το 58,2% των PRs από agents δεν έχει ρητό review [4]
+
+   Περιορισμοί:
+     - Το [1] αφορά έλεγχο κώδικα που έγραψε ο ίδιος ο developer, όχι
+       κώδικα από AI· ο κώδικας AI ίσως χρειάζεται περισσότερο χρόνο
+     - Οι μετρήσεις του [2] αφορούν L1–L2 και μοντέλα αρχών 2025
+     - Οι 107 γραμμές [3] αφορούν το SWE-Bench Pro, που έχει μεγαλύτερες
+       εργασίες από το SWE-bench Verified (από όπου το T_h) → το
+       0,5 × T_h είναι υπόθεση για να μείνουν συνεπή τα νούμερα
+   
