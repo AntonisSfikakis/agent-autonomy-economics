@@ -1,0 +1,146 @@
+ΠΙΝΑΚΑΣ ΠΑΡΑΜΕΤΡΩΝ ΜΟΝΤΕΛΟΥ (v9, ταυτίζεται με το pinakas_parametron_v9.pdf)
+Το κόστος της αυτονομίας: βέλτιστος βαθμός αυτονομίας AI agents στην ανάπτυξη λογισμικού · Αντώνης · Νοέμβριος 2026
+
+========================================================================
+1. ΜΟΝΤΕΛΟ ΚΟΣΤΟΥΣ (ανά εργασία)
+========================================================================
+
+Με agent, επίπεδο a, χώρα c:
+C(a, c) = C_tokens(a) + w_c·T_h·(1 − s(a)) + w_c·T_h·T_rev(a) + (1 − s(a))·w_c·T_h·T_rev,H + s(a)·(1 − p)·[ d(a)·w_c·T_fix + (1 − d(a))·C_err ] + (1 − s(a))·e_h·C_err
+
+Μόνο άνθρωπος (L0):
+C_H(c) = w_c·T_h + w_c·T_h·T_rev,H + e_h·C_err
+(προκύπτει από τον γενικό τύπο για s = 0, C_tokens = 0, T_rev(L0) = 0)
+
+Μονάδα εργασίας: μία εργασία τύπου SWE-bench Verified (διόρθωση issue σε υπάρχον repository), που την εκτελεί ένας developer σε ομάδα με επίπεδο ωριμότητας Elite / Medium / Low (κατά DORA). Όλα τα κόστη σε € ανά εργασία· οι χρόνοι σε ώρες.
+
+Μονάδες: T_h σε ώρες. T_rev, T_rev,H, s, d, p, e_h είναι αδιάστατοι (κλάσματα). Το T_rev είναι κλάσμα του T_h, και το κόστος του ελέγχου είναι w_c·T_h·T_rev (π.χ. 0,27 × 0,62 ώρες × 23,10 € ≈ 3,87 €).
+
+========================================================================
+2. ΟΡΙΣΜΟΙ ΕΠΙΤΥΧΙΑΣ ΚΑΙ ΣΦΑΛΜΑΤΟΣ
+========================================================================
+
+- Επιτυχία agent: Το patch του agent περνά (α) τα νέα «fail-to-pass» tests (λύνει το πρόβλημα) και (β) τα υπάρχοντα «pass-to-pass» tests (δεν χαλάει άλλη λειτουργία). Ορισμός «resolved» του SWE-bench. Μετριέται με αυτόματα tests, πριν τον ανθρώπινο έλεγχο. Παράμετρος: p.
+- Σφάλμα agent: Κάθε εργασία που δεν είναι «επιτυχία». Παράμετρος: 1 − p.
+- Εντοπισμένο σφάλμα: Σφάλμα agent που το πιάνει ο ανθρώπινος έλεγχος πριν το merge και το διορθώνει ο developer. Μετριέται στο code review. d → κόστος w_c·T_fix.
+- Μη εντοπισμένο σφάλμα: Σφάλμα agent που δεν πιάνεται στον έλεγχο και φτάνει στην παραγωγή. 1 − d → κόστος C_err.
+- Σφάλμα ανθρώπου: Αλλαγή του developer (μετά τον κανονικό έλεγχο της ομάδας) που προκαλεί πρόβλημα στην παραγωγή. Μετριέται με το change failure rate (DORA). e_h → κόστος C_err.
+
+Συνέπεια: τα σφάλματα του agent και του ανθρώπου που κοστολογούνται με C_err μετριούνται στην παραγωγή και με το ίδιο κόστος ανά σφάλμα. Για τον agent στο κομμάτι s, το ποσοστό που φτάνει στην παραγωγή είναι s·(1 − p)·(1 − d). Για τον developer στο κομμάτι (1 − s) είναι e_h.
+
+Παραδοχές συνέπειας:
+- Οι «ψευδείς επιτυχίες» (patches που περνούν τα tests αλλά είναι λάθος· +6,4 ποσοστιαίες μονάδες κατά Wang & Pradel) μετριούνται στο p ως επιτυχίες. Η επίδρασή τους εξετάζεται με το απαισιόδοξο σενάριο του p.
+- Το p μετριέται με τον agent να εκτελεί όλη την εργασία. Για το κομμάτι s(a) που εκτελεί ο agent στα L1–L3, θεωρούμε ότι η πιθανότητα επιτυχίας είναι ίση με το p του ίδιου μοντέλου (παραδοχή, δεν μετριέται χωριστά).
+- Στο L0 ο αυτοέλεγχος του developer (T_rev,H) μπαίνει στο κομμάτι (1 − s) ως επιπλέον χρόνος πάνω από το T_h, για συγκρισιμότητα με τον έλεγχο του agent.
+- Ο έλεγχος του agent (T_rev) μπαίνει μόνο στα L4–L5. Στα L1–L3 περιλαμβάνεται ήδη στο s, γιατί οι μελέτες μετράνε καθαρό χρόνο (άρα δεν υπάρχει διπλομέτρηση).
+- Τα κόστη του agent (C_tokens) είναι σε $ και μετατρέπονται σε € με ισοτιμία 1,1127 $/€ (ΕΚΤ, 11/11/2026).
+
+========================================================================
+3. ΣΤΑΘΕΡΕΣ ΠΑΡΑΜΕΤΡΟΙ (ίδιες σε όλα τα επίπεδα)
+========================================================================
+
+w_c: Ωριαίο κόστος εργασίας στη χώρα c (μισθοί + εισφορές εργοδότη)
+  Μονάδα: €/ώρα
+  Τιμή: Ελλάδα 23,10 · Γερμανία 56,23
+  Πηγή: Eurostat SBS, sbs_ovw_act, δείκτης EXPN_SAL_BEN_HW_EUR, NACE J62, 2023 [1] (2024 υπό έλεγχο· αναπροσαρμογή στο 2026 με δείκτη κόστους εργασίας)
+  Παραδοχές: μέσος όρος του κλάδου J62, όχι μόνο developers· ίδιο έτος για όλες τις χώρες· αρχικά 2 χώρες
+
+p: Πιθανότητα ο agent να λύσει την εργασία (ορισμός «επιτυχίας», §2)
+  Μονάδα: πιθανότητα [0, 1]
+  Σενάρια (ζεύγη p–κόστους, ίδιο μοντέλο, scaffold SWE-Agent):
+    Φθηνό (o4-mini Low): 0,54
+    Βασικό (Sonnet 4.5 High): 0,72
+    Ακριβό (Opus 4.1): 0,61
+    Μέγιστο (Verified top-5): 0,783
+  Πηγή: HAL, SWE-bench Verified Mini, scaffold SWE-Agent [20] · Verified leaderboard top-5, πρόσβαση 28/10/2026 [2][3] για το μέγιστο
+  Παραδοχές: κάθε p ανήκει στο ίδιο μοντέλο με το C_agent του σεναρίου· 50 εργασίες: διάστημα ±7 pp· Haiku 4.5 (44%) δεν χρησιμοποιείται, scaffold HAL Generalist· μέγιστο: κορεσμένο Verified
+
+T_h: Χρόνος που χρειάζεται ο developer για την εργασία χωρίς AI
+  Μονάδα: ώρες
+  Τιμή: ≈ 0,62 (≈ 37 λεπτά)
+  Πηγή: OpenAI, SWE-bench Verified, κατηγορίες χρόνου από developers [6]
+  Παραδοχές: εκτίμηση, όχι μέτρηση· μέσο κάθε κατηγορίας, «>4 ώρες» = 5 ώρες
+
+T_fix: Χρόνος διόρθωσης εντοπισμένου σφάλματος του agent από τον developer
+  Μονάδα: ώρες
+  Τιμή: k × T_h, k = 0,3–1,0
+  Πηγή: παραδοχή μοντέλου· συμπληρωματικά [7][8]
+  Παραδοχές: k = 0,3 μικρή διόρθωση· k = 1 ξαναγράψιμο· εξετάζεται στην ανάλυση ευαισθησίας
+
+C_err: Κόστος σφάλματος που φτάνει στην παραγωγή
+  Μονάδα: € ανά σφάλμα
+  Τιμή: m × w_c × T_h, m = 2 / 13 / 100
+  Πηγή: DORA 2024, χρόνος αποκατάστασης [9] · Boehm & Basili [10] · Menzies et al. [11]
+  Παραδοχές: Proxy: ο χρόνος αποκατάστασης DORA μετράει μόνο τον χρόνο ενός developer, άρα είναι κατώτερο όριο (χωρίς ζημιά σε πελάτες, downtime, ασφάλεια). m = χρόνος αποκατάστασης / T_h
+
+e_h: Πιθανότητα σφάλματος του developer να φτάσει στην παραγωγή
+  Μονάδα: πιθανότητα [0, 1]
+  Τιμή: 0,05 / 0,10 / 0,40 (Elite / Medium / Low)
+  Πηγή: DORA 2024, change failure rate [9]
+  Παραδοχές: ανά επίπεδο ομάδας, μαζί με m = 2 / 13 / 100· μετράει ομάδες, όχι άτομα
+
+Ισοτιμία: 1 $ = 1 / 1,1127 € (ΕΚΤ, αναφορά 11/11/2026)
+
+========================================================================
+4. ΜΕΤΑΒΛΗΤΕΣ ΑΝΑ ΕΠΙΠΕΔΟ ΑΥΤΟΝΟΜΙΑΣ
+========================================================================
+
+Επίπεδα κατά Feng, McDonald & Zhang [12]: L0 μόνο άνθρωπος · L1 Operator · L2 Collaborator · L3 Consultant · L4 Approver · L5 Observer.
+
+s: Ποσοστό του T_h που κάνει ο agent αντί για τον άνθρωπο
+  Μονάδα: κλάσμα [0, 1]
+  L0 = 0 · L1 = 0,21 · L2 = 0,01 · L3 = 0,7 · L4 = 1 · L5 = 1
+  Πηγές: [12] επίπεδα· [13] L1 (κεντρική)· [14] άνω όριο L1· [7] όριο L2 (−0,19)· [15] L3· [16] L4–L5
+  Παραδοχές: L1: μετατροπή +26% εργασιών σε χρόνο: 1 − 1/1,26 (ίδια ποιότητα)· L2: κέντρο = μέσος των −0,19 και 0,21 (παραδοχή, εύρος στην ανάλυση ευαισθησίας)· L3 υπόθεση· αντιστοίχιση μελετών σε επίπεδα δική μας
+
+T_rev: Έλεγχος του agent που δεν περιλαμβάνεται στο s (× T_h)
+  Μονάδα: × T_h (κλάσμα, αδιάστατο)
+  L0 = 0 · L1 = 0 (στο s) · L2 = 0 (στο s) · L3 = 0 (στο s) · L4 = 0,27 · L5 = 0,03
+  Πηγές: [7] L1–L2· [17] 200 γραμμές/ώρα· [3] 32,8 γραμμές = μέσο reference patch όλου του SWE-bench (2.294 εργασίες), όχι του Verified· το patch του agent μπορεί να διαφέρει
+  Παραδοχές: μόνο L4–L5 (εκεί το s = 1 είναι παραδοχή)· L5: 0,1 × 0,27 (δειγματοληπτικός έλεγχος)· στα L1–L3 ο έλεγχος περιλαμβάνεται στο s (καθαρός χρόνος)
+  Υπολογισμός L4: 32,8 / 200 ≈ 0,16 ώρες ≈ 10 λεπτά· 10 / 37 ≈ 0,27
+
+T_rev,H: Αυτοέλεγχος του developer ανά εργασία (× T_h)
+  Μονάδα: × T_h (κλάσμα, αδιάστατο)
+  L0 = 0,27 · L1 = 0,27 · L2 = 0,27 · L3 = 0,27 · L4 = 0,27 · L5 = 0,27
+  Παραδοχή: ίση με L4· εφαρμόζεται στο κομμάτι (1 − s)· στα L4–L5 το κομμάτι αυτό είναι μηδέν
+
+d: Πιθανότητα ο ανθρώπινος έλεγχος να εντοπίσει σφάλμα του agent
+  Μονάδα: πιθανότητα [0, 1]
+  L0 = — · L1 = 0,56 · L2 = 0,56 · L3 = 0,56 · L4 = 0,56 · L5 = 0,06
+  Πηγές: [17] ~56% με ≤200 γραμμές/ώρα· [18][19] συμπληρωματικά
+  Παραδοχές: ίδια αποτελεσματικότητα L1–L4· L5 = 0,1 × 0,56· πιθανώς χαμηλότερο για κώδικα AI [19]. Ίδιο d για όλες τις ομάδες (βασικό σενάριο), εύρος 0,3–0,6 στην ανάλυση ευαισθησίας· το e_h αλλάζει ανά ομάδα, το d όχι
+
+C_tokens: Κόστος χρήσης του agent μέσω API
+  Μονάδα: € ανά εργασία
+  L0 = 0 · L1 = 1,10 · L2 = 0,3 · C_agent · L3–L5 = C_agent
+  C_agent (€) = 4,66 / 8,34 / 24,29 (o4-mini Low / Sonnet 4.5 High / Opus 4.1), από $5,18 / $9,28 / $27,03 με 1,1127 $/€, ίδια ζεύγη με το p
+  Πηγή: [20] HAL, SWE-bench Verified Mini
+  Παραδοχές: L1–L2 υποθέσεις· μετατροπή με 1,1127 $/€ (ΕΚΤ, αναφορά της 11/11/2026)· L1: συνδρομή 22,99 €/μήνα ÷ 21 εργασίες/μήνα (1 εργασία ανά εργάσιμη ημέρα) ≈ 1,10 €/εργασία
+
+Σύγκριση μεγεθών (βασικό σενάριο): κόστος developer ανά εργασία w_c·T_h ≈ 14 € (Ελλάδα), ≈ 35 € (Γερμανία)· κόστος agent C_agent ≈ 4,66–24,29 € ανά εργασία. Τα δύο κόστη είναι της ίδιας τάξης μεγέθους.
+
+========================================================================
+5. ΠΗΓΕΣ
+========================================================================
+
+[1] Eurostat, Structural Business Statistics (sbs_ovw_act). https://ec.europa.eu/eurostat/databrowser/bookmark/fff8c68e-0ab3-457e-9048-b64e9391ea9c
+[2] SWE-bench Verified, επίσημο leaderboard (πρόσβαση 28/10/2026). https://www.swebench.com
+[3] Jimenez et al., «SWE-bench: Can Language Models Resolve Real-World GitHub Issues?», ICLR 2024. https://arxiv.org/abs/2310.06770
+[4] Scale AI, «SWE-Bench Pro: Can AI Agents Solve Long-Horizon Software Engineering Tasks?», 2025. https://arxiv.org/pdf/2509.16941
+[5] Scale AI, «SWE-Bench Pro: Raising the Bar for Agentic Coding» (blog), 2025. https://scale.com/blog/swe-bench-pro
+[6] OpenAI, «Introducing SWE-bench Verified», 2024. https://openai.com/index/introducing-swe-bench-verified
+[7] Becker et al. (METR), «Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity», 2025. https://arxiv.org/pdf/2507.09089
+[8] Gao et al., «A Survey of Bugs in AI-Generated Code», 2025. https://arxiv.org/pdf/2512.05239
+[9] Google DORA, «Accelerate State of DevOps Report 2024». https://dora.dev/research/2024/dora-report/
+[10] Boehm & Basili, «Software Defect Reduction Top 10 List», IEEE Computer, 2001.
+[11] Menzies et al., «Are delayed issues harder to resolve? Revisiting cost-to-fix of defects throughout the lifecycle», Empirical Software Engineering, 2017. https://link.springer.com/article/10.1007/s10664-016-9469-x
+[12] Feng, McDonald & Zhang, «Levels of Autonomy for AI Agents», 2025. https://arxiv.org/abs/2506.12469
+[13] Cui, Demirer, Jaffe, Musolff, Peng & Salz, «The Effects of Generative AI on High-Skilled Work: Evidence from Three Field Experiments with Software Developers», Microsoft Research, 2025.
+[14] Peng, Kalliamvakou, Cihon & Demirer, «The Impact of AI on Developer Productivity: Evidence from GitHub Copilot», 2023. https://arxiv.org/abs/2302.06590
+[15] Takerngsaksiri et al., «Human-In-the-Loop Software Development Agents» (HULA), ICSE SEIP 2025. https://arxiv.org/abs/2411.12924
+[16] Li, Zhang & Hassan, «The Rise of AI Teammates in Software Engineering (SE) 3.0» (AIDev), 2025. https://arxiv.org/abs/2507.15003
+[17] Kemerer & Paulk, «The Impact of Design and Code Reviews on Software Quality: An Empirical Study Based on PSP Data», IEEE TSE, 2009. https://sites.pitt.edu/~ckemerer/PSP_Data.pdf
+[18] Wang & Pradel, «Are 'Solved Issues' in SWE-bench Really Solved Correctly? An Empirical Study».
+[19] Perry, Srivastava, Kumar & Boneh, «Do Users Write More Insecure Code with AI Assistants?», ACM CCS 2023.
+[20] Kapoor et al., «Holistic Agent Leaderboard: The Missing Infrastructure for AI Agent Evaluation», ICLR 2026. https://hal.cs.princeton.edu/swebench_verified_mini
